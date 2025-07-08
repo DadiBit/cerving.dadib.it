@@ -1,0 +1,18 @@
+{
+  "name": "cerving.dadib.it",
+  "private": true,
+  "version": "0.5.0",
+  "type": "module",
+  "scripts": {
+    "dev:frontend": "vite",
+    "build:frontend": "tsc && vite build",
+    "preview:frontend": "vite preview",
+    "dev:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --watch bots/src/*.ts",
+    "build:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify bots/src/*.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.6",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.0"
+  }
+}
