@@ -1,5 +1,5 @@
 import { type Controls, control } from "./lib/controls.js";
-import { click, populate, type ActionData } from "./lib/actions.js";
+import { click, match, populate, type ActionData } from "./lib/actions.js";
 
 export const controls = {
   toponimo: control('select', 'Toponimo', { required: true }, [
@@ -18,10 +18,7 @@ export const controls = {
   dimensione: control('select', 'Dimensione', { required: true, value: 'Medio' }, [
     'Piccolo', 'Medio piccolo', 'Medio', 'Medio grande', 'Grande'
   ]),
-  piani_fuori_terra: control('number', 'Piani fuori terra', { required: true, min: 0, max: 100 }),
-  piani_entro_terra: control('number', 'Piani entro terra', { required: true, min: 0, max: 100 }),
-  test: control('text', 'Test', { required: true }),
-  x: control('number', 'Piani entro terra', { required: true, min: 0, max: 100 }),
+  anno_costruzione: control('number', 'Anno di costruzione', { required: true, min: 1700, max: new Date().getFullYear() }),
 } satisfies Controls;
 
 export async function action({
@@ -33,10 +30,11 @@ export async function action({
   zona_omi,
   destinazione,
   dimensione,
-  piani_fuori_terra,
-  piani_entro_terra,
+  anno_costruzione,
 }: ActionData<typeof controls>): Promise<void> {
 
+  // Since we're populating a lot of fields, we should wait
+  // so we don't fall in a race condition
   await populate({
     
     /** Riepilogo **/
@@ -153,16 +151,12 @@ export async function action({
 	  '#accessoDaStradaSecondaria': "Assente",
 	  '#androne': "Assente",
 	  '#elementiArchitettoniciDecorativi': "Assenti",
-	  '#strutturePortantiVerticaliPrevalenti': "Cemento armato",
-	  '#strutturePortantiOrizzontaliPrevalenti':  "Cemento armato",
 	  '#copertura': "A falde",
 	  '#mantoDiCopertura': "Non rilevato",
 	  '#facciataPrincipale': "Intonacate",
 	  '#altreFacciate': "Intonacate",
 	  'select[name=fabbricatoAntisismico]': "No",
 	  '#tamponamenti': "Mattoni forati",
-    '#numeroPianiFt': piani_fuori_terra,
-    '#numeroPianiEt': piani_entro_terra,
 	  'select[name=portieratoGuardinaia]': "Assente",
 	  'select[name=terrazzeDiUsoComune]': "Assente",
 	
@@ -204,6 +198,39 @@ export async function action({
 
   });
 
-  await click('')
+  if (typeof anno_costruzione === 'string') {
+    if (parseInt(anno_costruzione) < 1920) {  
+      // No need to wait, this can run in the background!
+      populate({
+	      '#strutturePortantiVerticaliPrevalenti': "Muratura",
+	      '#strutturePortantiOrizzontaliPrevalenti':  "Legno",
+      })
+    } else {
+      populate({
+	      '#strutturePortantiVerticaliPrevalenti': "Cemento armato",
+	      '#strutturePortantiOrizzontaliPrevalenti':  "Cemento armato",
+      })
+    }
+  }
+
+  if (typeof zona_omi == 'string') {
+
+    // Try to open the OMI zone selector popup
+    await click('button[data-bind="click: addMarketValue"]');
+    const zone_omi = await match('#zone_omi');
+    
+    // Select the correct zone
+    if (zone_omi instanceof HTMLSelectElement) {
+      for (const option of zone_omi.options) {
+        // Try to match the selected zone
+        // B1 doesn't match B10 (usage of /)
+        if (option.innerText.startsWith(`${zona_omi}/`)) {
+          option.selected = true;
+          break;
+        }
+      }
+    }
+
+  }
 
 }
