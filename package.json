@@ -7,7 +7,7 @@
     "dev:frontend": "vite",
     "build:frontend": "tsc && vite build",
     "preview:frontend": "vite preview",
-    "dev:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify --watch bots/src/*.ts",
+    "dev:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --watch bots/src/*.ts",
     "build:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify bots/src/*.ts"
   },
   "devDependencies": {
