@@ -106,8 +106,8 @@ export function populate(data: { [selector: string]: any }, timeout: number = -1
  * @param selector A selector used by [document.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll)
  * @param timeout An optional timeout in milliseconds
  */
-export async function click(selector: string) {
-    const matches = await match(selector);
+export async function click(selector: string, timeout: number = -1) {
+    const matches = await match(selector, timeout);
     for (const match of matches)
         if (match instanceof HTMLElement)
             match.click();
