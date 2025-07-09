@@ -1,5 +1,5 @@
-import { type Controls, control } from "./lib/controls.js";
-import { click, match, populate, type ActionData } from "./lib/actions.js";
+import { type Controls, control } from "./lib/controls";
+import { click, match, populate, type ActionData } from "./lib/actions";
 
 export const controls = {
   toponimo: control('select', 'Toponimo', { required: true }, [

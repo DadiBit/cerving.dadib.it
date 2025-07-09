@@ -37,6 +37,12 @@ bot.addEventListener('change', async () => {
   submit.type = 'submit';
   submit.formTarget = form.id;
 
+  submit.addEventListener('click', () => {
+    const entries = new FormData(form).entries();
+    const obj = Object.fromEntries(entries);
+    JSON.stringify(obj);
+  })
+
   document.body.appendChild(submit);
 
 });
