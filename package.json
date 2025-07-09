@@ -8,7 +8,7 @@
     "build:frontend": "tsc && vite build",
     "preview:frontend": "vite preview",
     "dev:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --watch bots/src/*.ts",
-    "build:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify bots/src/*.ts"
+    "build:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify --define:process.env.NODE_ENV=\\\"production\\\" bots/src/*.ts"
   },
   "devDependencies": {
     "esbuild": "^0.25.6",
