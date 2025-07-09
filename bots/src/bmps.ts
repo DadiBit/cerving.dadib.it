@@ -13,7 +13,7 @@ export const controls = {
   zona_omi: control('string', 'Zona OMI', { required: true, minlength: 1, maxlength: 3 }),
   destinazione: control('select', 'Destinazione', { required: true }, [
     'Residenziale', 'Negozio/Spazio Commerciale', 'Ufficio/Spazio Direzionale',
-    'Alberghiero/Ricettivo', 'Industriale', 'Artigianale', '01234567890123456789012345678901234567890123456789'
+    'Alberghiero/Ricettivo', 'Industriale', 'Artigianale'
   ]),
   dimensione: control('select', 'Dimensione', { required: true, value: 'Medio' }, [
     'Piccolo', 'Medio piccolo', 'Medio', 'Medio grande', 'Grande'
