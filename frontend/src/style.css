@@ -29,6 +29,7 @@ form {
 label {
     display: inline-block;
     text-align: right;
+    vertical-align: middle;
     width: 14rem;
     margin-right: 1rem;
 }
