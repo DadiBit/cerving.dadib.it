@@ -1,5 +1,8 @@
 import './style.css'
 
+import { inflate } from './inflate';
+import { output } from './output';
+
 const bot = document.getElementById('bot');
 if (!bot || !(bot instanceof HTMLInputElement)) throw new Error('Bot input element not found');
 
@@ -11,8 +14,8 @@ bot.addEventListener('change', async () => {
   const file = bot.files?.[0];
   if (!file) return;
 
-  const url = URL.createObjectURL(file);
-  const module = await import(/* @vite-ignore */ url);
+  // Decompress and import the file
+  const module = await inflate(file);
   
   // Delete file input
   bot.remove();
@@ -37,10 +40,11 @@ bot.addEventListener('change', async () => {
   submit.type = 'submit';
   submit.formTarget = form.id;
 
-  submit.addEventListener('click', () => {
+  submit.addEventListener('click', async () => {
     const entries = new FormData(form).entries();
-    const obj = Object.fromEntries(entries);
-    JSON.stringify(obj);
+    const obj = Object.fromEntries(entries) as { [key: string] : string };
+    let result = await output(file, obj);
+    navigator.clipboard.writeText(result);
   })
 
   document.body.appendChild(submit);

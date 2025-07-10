@@ -1,7 +1,7 @@
 import type { Controls } from "./controls";
 
 export type ActionData<T extends Controls> = {
-    [K in keyof T]: string | boolean;
+    [K in keyof T]: string;
 }
 
 /**

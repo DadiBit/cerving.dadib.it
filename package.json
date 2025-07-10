@@ -1,14 +1,15 @@
 {
   "name": "cerving.dadib.it",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.6.0",
   "type": "module",
   "scripts": {
     "dev:frontend": "vite",
     "build:frontend": "tsc && vite build",
     "preview:frontend": "vite preview",
     "dev:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --watch bots/src/*.ts",
-    "build:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify --define:process.env.NODE_ENV=\\\"production\\\" bots/src/*.ts"
+    "build:bots": "esbuild --outdir=bots/dist --bundle --platform=neutral --minify --define:process.env.NODE_ENV=\\\"production\\\" bots/src/*.ts",
+    "compress:bots": "gzip -f -k bots/dist/*.js"
   },
   "devDependencies": {
     "esbuild": "^0.25.6",
