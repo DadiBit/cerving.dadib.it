@@ -60,7 +60,8 @@ export function control(type: string, description: string, attributes: {
         case 'text':
             control = document.createElement("textarea");
             break;
-
+        
+        /* @ts-ignore */
         case 'string':
             type = 'text';
         default:
