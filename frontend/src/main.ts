@@ -25,7 +25,7 @@ bot.addEventListener('change', async () => {
   if ('controls' in module) {
     for (const id in module.controls) {
       const [label, control] = module.controls[id];
-      if (typeof label !== 'undefined') label.htmlFor = control.id;
+      if (typeof label !== 'undefined') label.htmlFor = id;
       control.id = id;
       control.name = id;
       div = document.createElement('div');
