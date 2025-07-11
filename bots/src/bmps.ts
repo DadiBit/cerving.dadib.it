@@ -1,5 +1,5 @@
-import { type Controls, control } from "./lib/controls";
-import { click, match, set, populate, type ActionData } from "./lib/actions";
+import { type Controls, control, loadOptions } from "./lib/controls";
+import { click, match, set, populate, type ActionData, wait, EVENTS } from "./lib/actions";
 import { regione, provincia, comune, zona_sismica } from "./lib/zona_sismica";
 import { toponimi } from "./lib/toponomastica";
 
@@ -246,6 +246,22 @@ export async function action({
     set('#valutazioneVtr', vtr);
   } else {
     click('#valutazioneVtrNonDisponibile');
+  }
+
+/** MODALS/POPUPS **/
+
+  /** RIEPILOGO **/
+  click('#validateAddress');
+  // Wait for the modal to appear
+  const validateAddressModal = document.getElementById('validateAddressModal');
+  await wait(() => validateAddressModal?.style.display == 'block');
+  // Try clicking the button to validate the address
+  const importaIndirizzoValidatoButton = document.getElementById('importaIndirizzoValidatoButton');
+  if (importaIndirizzoValidatoButton instanceof HTMLButtonElement && !importaIndirizzoValidatoButton.disabled) {
+    importaIndirizzoValidatoButton.click();
+  } else {
+    // Close Modal if it failed to validate the address
+    await click('#validateAddressModal button.close');
   }
 
 }
