@@ -4,6 +4,16 @@ export type Controls = {
     [id: string]: [HTMLLabelElement | undefined, HTMLControlElement];
 }
 
+export function loadOptions(control: HTMLSelectElement, options: object | any[]) {
+    if (Array.isArray(options)) {
+        for (const option of new Set(options))
+            control.appendChild(new Option(option, option));
+    } else {
+        for (const [value, label] of Object.entries(options))
+            control.appendChild(new Option(label, value));
+    }
+}
+
 export function control(type: 'hidden') : [undefined, HTMLInputElement];
 
 export function control(type: 'number', description: string, attributes: {
@@ -31,15 +41,11 @@ export function control(type: 'text', description: string, attributes: {
 export function control(type: 'select', description: string, attributes: {
     required?: boolean;
     value?: string;
-}, options: {
-    [key: string]: any | any[];
-}) : [HTMLLabelElement, HTMLSelectElement];
+}, options: object | any[]) : [HTMLLabelElement, HTMLSelectElement];
 
 export function control(type: string, description: string = '', attributes: {
     [key: string]: any;
-} = {}, options: {
-    [key: string]: any | any[];
-} | string[] = {}) : [HTMLLabelElement | undefined, HTMLControlElement] {
+} = {}, options: object | any[] = {}) : [HTMLLabelElement | undefined, HTMLControlElement] {
 
     // Create the label element
     let label: HTMLLabelElement | undefined = undefined;
@@ -50,22 +56,13 @@ export function control(type: string, description: string = '', attributes: {
 
     let control: HTMLControlElement;
     switch (type) {
-
         case 'select':
             control = document.createElement("select");
-            if (Array.isArray(options)) {
-                for (const option of new Set(options))
-                    control.appendChild(new Option(option, option));
-            } else {
-                for (const [value, label] of Object.entries(options))
-                    control.appendChild(new Option(label, value));
-            }
+            loadOptions(control, options);
             break;
-
         case 'text':
             control = document.createElement("textarea");
             break;
-        
         /* @ts-ignore */
         case 'string':
             type = 'text';
@@ -75,6 +72,7 @@ export function control(type: string, description: string = '', attributes: {
             break;
     }
 
+    // Assign attributes
     Object.assign(control, attributes);
 
     // Return a pair of label and control

@@ -9,6 +9,42 @@ export const EVENTS = {
     change: new Event("change", { bubbles: true }),
 };
 
+export function wait(condition: () => boolean, timeout: number = -1) {
+    return new Promise<boolean>(resolve => {
+
+        // If we don't want to wait, return true as result immediately
+        // Otherwise, check if the condition is met, if so return the result true immediately
+        if (timeout == 0 || condition()) return resolve(true);
+
+        // Create a MutationObserver to watch for new elements matching the selector
+        const observer = new MutationObserver(() => {
+            if (condition()) {
+                observer.disconnect();
+                resolve(true);
+            }
+        });
+
+        // If a wait timeout is specified
+        if (timeout > 0) {
+            // Set a timeout to disconnect the observer
+            setTimeout(() => {
+                observer.disconnect();
+                // Don't forget to return the condtion result, no matter what happens, at this point
+                resolve(condition());
+            }, timeout);
+        }
+        
+        // Actually start observing!
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: false,
+            characterData: false,
+        });
+
+    })
+}
+
 /**
  * Try matching the selector and return the result before an optional timeout is reached.
  * @param selector A selector used by [document.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll)
@@ -62,7 +98,7 @@ export function match(selector: string, timeout: number = -1) {
  * @param timeout An optional timeout in milliseconds
  */
 export async function set(selector: string, value: any, timeout: number = -1) {
-    
+
     // Process one matching element at a time
     // Once the value is set, simulate user input
     const matches = await match(selector, timeout);
@@ -103,7 +139,7 @@ export async function set(selector: string, value: any, timeout: number = -1) {
  * @param timeout An optional timeout in milliseconds
  */
 export function populate(data: { [selector: string]: any }, timeout: number = -1) {
-    const selectors = Object.keys(data)
+    const selectors = Object.keys(data);
     return Promise.all(selectors.map(selector => set(selector, data[selector], timeout)));
 }
 
