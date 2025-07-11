@@ -39,7 +39,7 @@ export async function action({
     
     /** Riepilogo **/
     '#motivazioneCensimento': "7",
-    '#toponimo_1-display': toponimo,
+    '#toponimo_1-display': toponimo.toUpperCase(),
     '#indirizzo': indirizzo,
     '#civico': civico,
     '#comune_1': comune,
