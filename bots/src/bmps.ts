@@ -197,7 +197,7 @@ export async function action({
     '#impiantoFotovoltaico': "Assente",
     '#impiantoVideocitofonico': "Assente",
 
-  });
+  }, 500);
 
   if (typeof anno_costruzione === 'string') {
     if (parseInt(anno_costruzione) < 1920) {  
