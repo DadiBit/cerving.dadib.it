@@ -1,8 +1,10 @@
 export type HTMLControlElement = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 export type Controls = {
-    [id: string]: [HTMLLabelElement, HTMLControlElement];
+    [id: string]: [HTMLLabelElement | undefined, HTMLControlElement];
 }
+
+export function control(type: 'hidden') : [undefined, HTMLInputElement];
 
 export function control(type: 'number', description: string, attributes: {
     required?: boolean;
@@ -30,18 +32,21 @@ export function control(type: 'select', description: string, attributes: {
     required?: boolean;
     value?: string;
 }, options: {
-    [key: string]: any;
+    [key: string]: any | any[];
 }) : [HTMLLabelElement, HTMLSelectElement];
 
-export function control(type: string, description: string, attributes: {
+export function control(type: string, description: string = '', attributes: {
     [key: string]: any;
 } = {}, options: {
-    [key: string]: any;
-} | string[] = {}) : [HTMLLabelElement, HTMLControlElement] {
+    [key: string]: any | any[];
+} | string[] = {}) : [HTMLLabelElement | undefined, HTMLControlElement] {
 
     // Create the label element
-    const label = document.createElement("label");
-    label.innerText = description;
+    let label: HTMLLabelElement | undefined = undefined;
+    if (description != '') {
+        label = document.createElement("label");
+        label.innerText = description;
+    }
 
     let control: HTMLControlElement;
     switch (type) {
