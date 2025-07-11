@@ -3,7 +3,7 @@ import { click, match, populate, type ActionData } from "./lib/actions";
 
 export const controls = {
   toponimo: control('select', 'Toponimo', { required: true }, [
-    'via', 'viale', 'vicolo', 'piazza', 'piazzale', 'riva', 'androna', 'salita', 'scala'
+    'via', 'viale', 'vicolo', 'piazza', 'piazzale', 'riva', 'androna', 'salita', 'scala', 'localita\''
   ]),
   indirizzo: control('string', 'Indirizzo', { required: true }),
   civico: control('string', 'Civico', { required: true }),
