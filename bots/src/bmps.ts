@@ -1,12 +1,11 @@
 import { type Controls, control } from "./lib/controls";
 import { click, match, set, populate, type ActionData } from "./lib/actions";
 import { regione, provincia, comune, zona_sismica } from "./lib/zona_sismica";
+import { toponimi } from "./lib/toponomastica";
 
 export const controls = {
   regione, provincia, comune, zona_sismica,
-  toponimo: control('select', 'Toponimo', { required: true }, [
-    'via', 'viale', 'vicolo', 'piazza', 'piazzale', 'riva', 'androna', 'androne', 'salita', 'scala', 'localita\''
-  ]),
+  toponimo: control('select', 'Toponimo', { required: true }, Object.keys(toponimi)),
   indirizzo: control('string', 'Indirizzo', { required: true }),
   civico: control('string', 'Civico', { required: true }),
   zona_omi: control('string', 'Zona OMI', { required: true, minlength: 1, maxlength: 3 }),
@@ -22,11 +21,10 @@ export const controls = {
 } satisfies Controls;
 
 export async function action({
+  regione, provincia, comune, zona_sismica,
   toponimo,
   indirizzo,
   civico,
-  comune,
-  zona_sismica,
   zona_omi,
   destinazione,
   dimensione,
@@ -40,14 +38,16 @@ export async function action({
     
     /** Riepilogo **/
     '#motivazioneCensimento': "7",
-    '#toponimo_1-display': toponimo.toUpperCase(),
+    '#region_1': regione,
+    '#comune_1': `${comune} (${provincia})`,
+    '#toponimo_1': toponimi ? toponimi[toponimo] : toponimi['via'],
+    '#toponimo_1-display': toponimo,
     '#indirizzo': indirizzo,
     '#civico': civico,
-    '#comune_1': comune,
-    '#region_1': "Friuli-Venezia Giulia", // TODO
+    '#realPostCodeSubject': '',
     '#metodoValutativoUtilizzato': "MEVU.1",
     '#noteMetodoValutativoUtilizzato': "Valutazione condotta con metodo MCA.",
-    '#descrizionePotenzialiRischi': `Zona sismica ${zona_sismica}`,
+    '#descrizionePotenzialiRischi': `Zona sismica ${zona_sismica}.`,
     
     /** Lotto 1 **/
     '#destinazione': destinazione,
@@ -215,25 +215,33 @@ export async function action({
   }
 
   if (typeof zona_omi == 'string') {
-
-    // Try to open the OMI zone selector popup
-    await click('button[data-bind="click: addMarketValue"]');
-    const zone_omi = await match('#zone_omi');
-    
-    // Select the correct zone
-    if (zone_omi instanceof HTMLSelectElement) {
-      for (const option of zone_omi.options) {
-        // Try to match the selected zone
-        // B1 doesn't match B10 (usage of /)
-        if (option.innerText.startsWith(`${zona_omi}/`)) {
-          option.selected = true;
-          break;
-        }
-      }
+    let zona: string;
+    switch (zona_omi[0]) {
+      case 'B':
+        zona = "centrale";
+        break;
+      case 'C':
+        zona = "semicentrale";
+        break;
+      case 'D':
+        zona = "periferica";
+        break;
+      case 'E':
+        zona = "extraurbana";
+        break;
+      case 'R':
+        zona = "rurale";
+        break;
+      default:
+        zona = "";
+        break;
     }
 
+    set('#descrizioneLotto',
+      `Trattasi di un? ...., ubicat? in zona ${zona} del comune di ${comune} (${provincia}), e più precisamente in ${toponimo} ${indirizzo} al civico ${civico}.`);
   }
 
+  /** VALUTAZIONE IMMOBILIARE **/
   if (typeof vtr === 'string' && vtr !== '' && vtr !== '0') {
     set('#valutazioneVtr', vtr);
   } else {

@@ -1,17 +1,24 @@
-import { control } from "./controls";
+import { control, loadOptions } from "./controls";
 import { EVENTS } from "./actions";
 
-const PATH = '/db/zona_sismica.json';
+const DB = '/db/zona_sismica.json';
 
 export const regione = control('hidden');
 export const provincia = control('select', 'Provincia', { required: true }, []);
 export const comune = control('select', 'Comune', { required: true }, []);
 export const zona_sismica = control('hidden');
 
-fetch(PATH)
-.then(res => res.json())
-.then((data: [string, string, string, string, string, string][]) => {
-  
+(async function() {
+
+  // Guard against running the init function within the cerved page
+  // ! This is a hack, but it works for now
+  // We should just wait for up to 10 seconds or something like that for the elements to be connected.
+  if (document.location.host === 'perizie.cervedgroup.com') return;
+
+  // Fetch JSON database
+  const res = await fetch(DB);
+  const data = await res.json() as [string, string, string, string, string, string][];
+    
   // Header currently is:
   // 0:REGIONE	1:PROV_CITTA_METROPOLITANA	2:SIGLA_PROV	3:COMUNE	4:COD_ISTAT_COMUNE	5:ZONA_SISMICA
   // Hardcoding reduces a tonshit of bandwidth -> faster loading!
@@ -28,8 +35,7 @@ fetch(PATH)
 
     // Replace the current options
     comune[1].innerHTML = '';
-    for (const nome of comuni)
-      comune[1].appendChild(new Option(nome, nome));
+    loadOptions(comune[1], comuni);
 
   });
 
@@ -40,11 +46,10 @@ fetch(PATH)
 
   // Add the options
   const province = new Set(data.map(row => row[2]));
-  for (const sigla of [...province].sort())
-    provincia[1].appendChild(new Option(sigla, sigla));
+  loadOptions(provincia[1], [...province].sort());
 
   // When loading fire change events immidiately
   provincia[1].dispatchEvent(EVENTS.change);
   comune[1].dispatchEvent(EVENTS.change);
-  
-});
+
+})();
