@@ -4,7 +4,7 @@ export type ActionData<T extends Controls> = {
     [K in keyof T]: string;
 }
 
-const EVENTS = {
+export const EVENTS = {
     click: new Event("click", { bubbles: true }),
     change: new Event("change", { bubbles: true }),
 };

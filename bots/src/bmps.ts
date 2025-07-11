@@ -1,15 +1,14 @@
 import { type Controls, control } from "./lib/controls";
-import { click, match, populate, type ActionData } from "./lib/actions";
+import { click, match, set, populate, type ActionData } from "./lib/actions";
+import { regione, provincia, comune, zona_sismica } from "./lib/zona_sismica";
 
 export const controls = {
+  regione, provincia, comune, zona_sismica,
   toponimo: control('select', 'Toponimo', { required: true }, [
-    'via', 'viale', 'vicolo', 'piazza', 'piazzale', 'riva', 'androna', 'salita', 'scala', 'localita\''
+    'via', 'viale', 'vicolo', 'piazza', 'piazzale', 'riva', 'androna', 'androne', 'salita', 'scala', 'localita\''
   ]),
   indirizzo: control('string', 'Indirizzo', { required: true }),
   civico: control('string', 'Civico', { required: true }),
-  // TODO: crea sorgente lista comuni -> regione
-  comune: control('string', 'Comune', { required: true }),
-  zona_sismica: control('select', 'Zona sismica', { required: true }, ['1', '2', '3', '4']),
   zona_omi: control('string', 'Zona OMI', { required: true, minlength: 1, maxlength: 3 }),
   destinazione: control('select', 'Destinazione', { required: true }, [
     'Residenziale', 'Negozio/Spazio Commerciale', 'Ufficio/Spazio Direzionale',
@@ -19,6 +18,7 @@ export const controls = {
     'Piccolo', 'Medio piccolo', 'Medio', 'Medio grande', 'Grande'
   ]),
   anno_costruzione: control('number', 'Anno di costruzione', { required: true, min: 1700, max: new Date().getFullYear() }),
+  vtr: control('number', 'VTR', { required: false, min: 0, max: 100_000_000, step: 100 }),
 } satisfies Controls;
 
 export async function action({
@@ -31,6 +31,7 @@ export async function action({
   destinazione,
   dimensione,
   anno_costruzione,
+  vtr,
 }: ActionData<typeof controls>): Promise<void> {
 
   // Since we're populating a lot of fields, we should wait
@@ -231,6 +232,12 @@ export async function action({
       }
     }
 
+  }
+
+  if (typeof vtr === 'string' && vtr !== '' && vtr !== '0') {
+    set('#valutazioneVtr', vtr);
+  } else {
+    click('#valutazioneVtrNonDisponibile');
   }
 
 }
