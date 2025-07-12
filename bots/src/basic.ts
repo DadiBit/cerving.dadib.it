@@ -280,9 +280,10 @@ export async function action({
       zona = "rurale";
       break;
     default:
-      zona = "";
+      zona = "non rilevabile";
       break;
   }
+  set('#tipologiaZona', zona);
 
   const infrastrutture = zona == 'centrale' || zona == 'semicentrale'
     ? metropoli == 'Metropoli' ? 4 : 3 : 2;
