@@ -170,6 +170,7 @@ export async function action({
     /** Fabbricato **/
     '#fabbricato': "Presente",
     '#tipoCasa': "A - Altro",
+    '#annoCostruzione': anno_costruzione_int,
     '#statoImmobileAlSopralluogo': "Finito",
     '#statoOccupazionaleAlSopralluogo': "LIBER",
     '#condizioneFabbricato': "Usato",
