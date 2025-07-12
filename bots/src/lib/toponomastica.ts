@@ -6,14 +6,15 @@ export const toponimi : {
     'vicolo': 'VICOLO',
     'piazza': 'PIAZZA',
     'piazzale': 'PIAZZALE',
-    //'piazzetta': '',
+    'piazzetta': 'P.TTA',
     'riva': 'RIVA',
     'androna': 'ANDRA',
     'androne': 'ANDR.',
     'salita': 'SAL',
     'scala': 'SCALA',
     'localita\'': 'LOC',
-    // 'corso': '',
+    'corso': 'C.SO',
+    'contrada': 'C.DA',
 };
 
 export function cardinale(int: number): string {
