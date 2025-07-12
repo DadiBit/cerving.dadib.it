@@ -265,27 +265,27 @@ export async function action({
   let zona: string;
   switch (zona_omi[0]) {
     case 'B':
-      zona = "centrale";
+      zona = "Centrale";
       break;
     case 'C':
-      zona = "semicentrale";
+      zona = "Semicentrale";
       break;
     case 'D':
-      zona = "periferica";
+      zona = "Periferica";
       break;
     case 'E':
-      zona = "extraurbana";
+      zona = "Extraurbana";
       break;
     case 'R':
-      zona = "rurale";
+      zona = "Rurale";
       break;
     default:
-      zona = "non rilevabile";
+      zona = "Non rilevabile";
       break;
   }
   set('#tipologiaZona', zona);
 
-  const infrastrutture = zona == 'centrale' || zona == 'semicentrale'
+  const infrastrutture = zona == 'Centrale' || zona == 'Semicentrale' 
     ? metropoli == 'Metropoli' ? 4 : 3 : 2;
   set('#giudizioInfrastrutture', infrastrutture);
 
@@ -301,7 +301,7 @@ export async function action({
 
   // Description
   set('#descrizioneLotto',
-    `Trattasi di un? ${tipologia.toLowerCase()} strutturat? su ${piani_str}, ubicat? in zona ${zona} del comune di ${comune} (${provincia}), e più precisamente in ${toponimo} ${indirizzo} al civico n. ${civico}.`
+    `Trattasi di un? ${tipologia.toLowerCase()} strutturat? su ${piani_str}, ubicat? in zona ${zona.toLowerCase()} del comune di ${comune} (${provincia}), e più precisamente in ${toponimo} ${indirizzo} al civico n. ${civico}.`
   + ' ' + servizi[infrastrutture - 2]);
 
   /** COMPARABILI **/
@@ -311,7 +311,7 @@ export async function action({
   set('input[data-bind*="comparableEntries()[0].fonte"], '
     + 'input[data-bind*="comparableEntries()[1].fonte"], '
     + 'input[data-bind*="comparableEntries()[2].fonte"]', 'immobiliare.it');
-
+  
   /** VALUTAZIONE IMMOBILIARE **/
   if (vtr_int != 0) {
     set('#valutazioneVtr', vtr);
