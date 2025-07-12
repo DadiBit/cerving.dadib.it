@@ -304,6 +304,14 @@ export async function action({
     `Trattasi di un? ${tipologia.toLowerCase()} strutturat? su ${piani_str}, ubicat? in zona ${zona} del comune di ${comune} (${provincia}), e più precisamente in ${toponimo} ${indirizzo} al civico n. ${civico}.`
   + ' ' + servizi[infrastrutture - 2]);
 
+  /** COMPARABILI **/
+  set('#origine_dato_0[data-bind*="comparableEntries()[0].origineDato"], '
+    + '#origine_dato_0[data-bind*="comparableEntries()[1].origineDato"], '
+    + '#origine_dato_0[data-bind*="comparableEntries()[2].origineDato"]', 'Sito Internet');
+  set('input[data-bind*="comparableEntries()[0].fonte"], '
+    + 'input[data-bind*="comparableEntries()[1].fonte"], '
+    + 'input[data-bind*="comparableEntries()[2].fonte"]', 'immobiliare.it');
+
   /** VALUTAZIONE IMMOBILIARE **/
   if (vtr_int != 0) {
     set('#valutazioneVtr', vtr);
