@@ -1,36 +1,82 @@
 import { type Controls, control, loadOptions } from "./lib/controls";
 import { click, match, set, populate, type ActionData, wait, EVENTS } from "./lib/actions";
-import { regione, provincia, comune, zona_sismica } from "./lib/zona_sismica";
-import { toponimi } from "./lib/toponomastica";
+import { regione, provincia, comune, zona_sismica, metropoli, servizi } from "./lib/zona_sismica";
+import { cardinale, toponimi } from "./lib/toponomastica";
+
+const destinazione = control('select', 'Destinazione', { required: true }, [
+  'Residenziale', 'Negozio/Spazio Commerciale', 'Ufficio/Spazio Direzionale',
+  'Alberghiero/Ricettivo', 'Industriale', 'Artigianale'
+]);
+
+const tipologia = control('select', 'Tipologia', { required: true }, []);
+destinazione[1].addEventListener('change', () => {
+
+  // Clear the options and add the new ones
+  tipologia[1].innerHTML = '';
+  switch (destinazione[1].value) {
+    case 'Residenziale':
+      loadOptions(tipologia[1],
+        ['Appartamento', 'Appartamento in villa', 'Villa bifamiliare', 'Villa monofamiliare', 'Villetta a schiera', 'Villino']);
+      break;
+    case 'Negozio/Spazio Commerciale':
+      loadOptions(tipologia[1], ['Negozio / locale commerciale']);
+      break;
+    case 'Ufficio/Spazio Direzionale':
+      loadOptions(tipologia[1], ['Ufficio / studio professionale']);
+      break;
+    case 'Alberghiero/Ricettivo':
+      loadOptions(tipologia[1], ['Palazzina / condominio']);
+      break;
+    case 'Industriale':
+      loadOptions(tipologia[1], ['Magazzino', 'Palazzina / condominio', 'Capannone', 'Capannone + abitazione']);
+      break;
+    case 'Artigianale':
+      loadOptions(tipologia[1], ['Laboratorio artigianale']);
+      break;
+  }
+
+  // Show/hide the options
+  const parent = tipologia[1].parentElement;
+  if (parent instanceof HTMLDivElement) {
+    parent.style.display = tipologia[1].options.length < 2 ? 'none' : 'block';
+  }
+
+});
+
+// Simulate a change event
+destinazione[1].dispatchEvent(EVENTS.change);
 
 export const controls = {
-  regione, provincia, comune, zona_sismica,
+  regione, provincia, comune, zona_sismica, metropoli,
   toponimo: control('select', 'Toponimo', { required: true }, Object.keys(toponimi)),
   indirizzo: control('string', 'Indirizzo', { required: true }),
   civico: control('string', 'Civico', { required: true }),
   zona_omi: control('string', 'Zona OMI', { required: true, minlength: 1, maxlength: 3 }),
-  destinazione: control('select', 'Destinazione', { required: true }, [
-    'Residenziale', 'Negozio/Spazio Commerciale', 'Ufficio/Spazio Direzionale',
-    'Alberghiero/Ricettivo', 'Industriale', 'Artigianale'
-  ]),
+  destinazione, tipologia,
   dimensione: control('select', 'Dimensione', { required: true, value: 'Medio' }, [
     'Piccolo', 'Medio piccolo', 'Medio', 'Medio grande', 'Grande'
   ]),
+  piani_fuori_terra: control('number', 'Piani fuori terra', { required: true, min: 0, max: 100, step: 1 }),
+  piani_entro_terra: control('number', 'Piani entro terra', { required: true, min: 0, max: 100, step: 1 }),
   anno_costruzione: control('number', 'Anno di costruzione', { required: true, min: 1700, max: new Date().getFullYear() }),
   vtr: control('number', 'VTR', { required: false, min: 0, max: 100_000_000, step: 100 }),
 } satisfies Controls;
 
-export async function action({
-  regione, provincia, comune, zona_sismica,
-  toponimo,
-  indirizzo,
-  civico,
+export async function action({  
+  regione, provincia, comune, zona_sismica, metropoli,
+  toponimo, indirizzo, civico,
   zona_omi,
-  destinazione,
-  dimensione,
+  destinazione, tipologia,
+  dimensione, piani_fuori_terra, piani_entro_terra,
   anno_costruzione,
   vtr,
 }: ActionData<typeof controls>): Promise<void> {
+
+  // Parse knows ints
+  const piani_fuori_terra_int = parseInt(piani_fuori_terra);
+  const piani_entro_terra_int = parseInt(piani_entro_terra);
+  const anno_costruzione_int = parseInt(anno_costruzione);
+  const vtr_int = parseInt(vtr);
 
   // Since we're populating a lot of fields, we should wait
   // so we don't fall in a race condition
@@ -40,11 +86,11 @@ export async function action({
     '#motivazioneCensimento': "7",
     '#region_1': regione,
     '#comune_1': `${comune} (${provincia})`,
-    '#toponimo_1': toponimi ? toponimi[toponimo] : toponimi['via'],
+    '#toponimo_1': toponimi[toponimo] ?? toponimi['via'],
     '#toponimo_1-display': toponimo,
     '#indirizzo': indirizzo,
     '#civico': civico,
-    '#realPostCodeSubject': '',
+    '#realPostCodeSubject': '', // this is computed when validating the address
     '#metodoValutativoUtilizzato': "MEVU.1",
     '#noteMetodoValutativoUtilizzato': "Valutazione condotta con metodo MCA.",
     '#descrizionePotenzialiRischi': `Zona sismica ${zona_sismica}.`,
@@ -52,6 +98,7 @@ export async function action({
     /** Lotto 1 **/
     '#destinazione': destinazione,
     '#taglioDimensionale': dimensione,
+    '#D200_D': tipologia,
     '#scala': "-",
     '#interno': "-",
   
@@ -102,14 +149,13 @@ export async function action({
     '#posizionamento': "MED",
     '#prezzoAlMqAreaEsterna': "10,00",
     '#descrizioneAccessori': "-",
-    '#commentoAllaValutazione': "Valutazione condotta con metodo MCA. Il VTR indicato è stato desunto da promessa d'acquisto allegata. Si rende evidente che il bene oggetto di stima risulta tavolarmente iscritto.",
+    '#commentoAllaValutazione': "Valutazione condotta con metodo MCA.",
     'select[name=immobileIdoneoPerGaranziaIpotecaria]': "IDONEO",
   
     /** Urbanistica **/
     'select[name=conformitaEdiliziaRispettoDocumentazioneFornita]': "0",
     'select[name=fonteConformitaEdilizia]': "DOC_FOR",
     'select[name=liberamenteCommerciabile]': "S",
-    '#noteConformitaEdilizia': "Immobile ante 01/09/1967 desunto da promessa di acquisto allegata.",
     'select[name=verificaCorrettaUbicazioneCostruzione]': "1",
     'select[name=regolaritaUrbanistica]': 1,
     'select[name=servitu]': "Assente",
@@ -197,8 +243,9 @@ export async function action({
     '#impiantoFotovoltaico': "Assente",
     '#impiantoVideocitofonico': "Assente",
 
-  }, 500);
+  }, 500); // wait 500ms
 
+  // Before 1920 it's pretty much impossible to see armed concrete in residential buildings
   if (typeof anno_costruzione === 'string') {
     if (parseInt(anno_costruzione) < 1920) {  
       // No need to wait, this can run in the background!
@@ -214,41 +261,63 @@ export async function action({
     }
   }
 
-  if (typeof zona_omi == 'string') {
-    let zona: string;
-    switch (zona_omi[0]) {
-      case 'B':
-        zona = "centrale";
-        break;
-      case 'C':
-        zona = "semicentrale";
-        break;
-      case 'D':
-        zona = "periferica";
-        break;
-      case 'E':
-        zona = "extraurbana";
-        break;
-      case 'R':
-        zona = "rurale";
-        break;
-      default:
-        zona = "";
-        break;
-    }
-
-    set('#descrizioneLotto',
-      `Trattasi di un? ...., ubicat? in zona ${zona} del comune di ${comune} (${provincia}), e più precisamente in ${toponimo} ${indirizzo} al civico ${civico}.`);
+  let zona: string;
+  switch (zona_omi[0]) {
+    case 'B':
+      zona = "centrale";
+      break;
+    case 'C':
+      zona = "semicentrale";
+      break;
+    case 'D':
+      zona = "periferica";
+      break;
+    case 'E':
+      zona = "extraurbana";
+      break;
+    case 'R':
+      zona = "rurale";
+      break;
+    default:
+      zona = "";
+      break;
   }
 
+  const infrastrutture = zona == 'centrale' || zona == 'semicentrale'
+    ? metropoli == 'Metropoli' ? 4 : 3 : 2;
+  set('#giudizioInfrastrutture', infrastrutture);
+
+  // We are smart enough to know what it is based on the number of floors...
+  if (tipologia === 'Palazzina / condominio') {
+    tipologia = tipologia.split(' / ')[piani_fuori_terra_int > 3 ? 1 : 0];
+  }
+
+  // Floors texts
+  piani_fuori_terra = piani_fuori_terra_int > 0 ? `${cardinale(piani_fuori_terra_int)} piani fuori terra` : '';
+  piani_entro_terra = piani_entro_terra_int > 0 ? `${cardinale(piani_entro_terra_int)} piani sotto il livello stradale` : '';
+  let piani_str = piani_fuori_terra + (piani_fuori_terra_int > 0 && piani_entro_terra_int > 0 ? ' e ' : '') + piani_entro_terra;
+
+  // Description
+  set('#descrizioneLotto',
+    `Trattasi di un? ${tipologia.toLowerCase()} strutturat? su ${piani_str}, ubicat? in zona ${zona} del comune di ${comune} (${provincia}), e più precisamente in ${toponimo} ${indirizzo} al civico n. ${civico}.`
+  + ' ' + servizi[infrastrutture - 2]);
+
   /** VALUTAZIONE IMMOBILIARE **/
-  if (typeof vtr === 'string' && vtr !== '' && vtr !== '0') {
+  if (vtr_int != 0) {
     set('#valutazioneVtr', vtr);
+    const commento = document.getElementById('commentoAllaValutazione');
+    if (commento instanceof HTMLTextAreaElement) {
+      commento.innerHTML += " Il VTR indicato è stato desunto da promessa d'acquisto allegata.";
+    }
   } else {
     click('#valutazioneVtrNonDisponibile');
   }
 
-/** MODALS/POPUPS **/
+  if (anno_costruzione_int < 1967) {
+    set('#noteConformitaEdilizia', "Immobile ante 01/09/1967 desunto da atto di proveninenza allegato."); 
+  }
+
+  /** MODALS/POPUPS **/
 
   /** RIEPILOGO **/
   click('#validateAddress');
