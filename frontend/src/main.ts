@@ -11,8 +11,18 @@ if (!form || !(form instanceof HTMLFormElement)) throw new Error('Form element n
 
 bot.addEventListener('change', async () => {
 
+  // Get the file
   const file = bot.files?.[0];
   if (!file) return;
+
+  // On submit prevent default and instead generate output and copy it to the clipboard
+  form.addEventListener('submit', async event => { 
+    event.preventDefault();
+    const entries = new FormData(form).entries();
+    const obj = Object.fromEntries(entries) as { [key: string] : string };
+    let result = await output(file, obj);
+    navigator.clipboard.writeText(result);
+  })
 
   // Decompress and import the file
   const module = await inflate(file);
@@ -35,18 +45,11 @@ bot.addEventListener('change', async () => {
     }
   }
 
+  // Add submit button
   const submit = document.createElement('input');
   submit.value = 'Genera';
   submit.type = 'submit';
   submit.formTarget = form.id;
-
-  submit.addEventListener('click', async () => {
-    const entries = new FormData(form).entries();
-    const obj = Object.fromEntries(entries) as { [key: string] : string };
-    let result = await output(file, obj);
-    navigator.clipboard.writeText(result);
-  })
-
-  document.body.appendChild(submit);
+  form.appendChild(submit);
 
 });
