@@ -1,5 +1,5 @@
 import { type Controls, control, loadOptions } from "./lib/controls";
-import { click, match, set, populate, type ActionData, wait, EVENTS } from "./lib/actions";
+import { click, set, populate, type ActionData, wait, EVENTS } from "./lib/actions";
 import { regione, provincia, comune, zona_sismica, metropoli, servizi } from "./lib/zona_sismica";
 import { cardinale, toponimi } from "./lib/toponomastica";
 
