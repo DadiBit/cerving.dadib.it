@@ -59,6 +59,9 @@ export const controls = {
   piani_fuori_terra: control('number', 'Piani fuori terra', { required: true, min: 0, max: 100, step: 1 }),
   piani_entro_terra: control('number', 'Piani entro terra', { required: true, min: 0, max: 100, step: 1 }),
   anno_costruzione: control('number', 'Anno di costruzione', { required: true, min: 1700, max: new Date().getFullYear() }),
+  qualita_tipologica: control('select', 'Qualità tipologica', { required: true }, [
+    'Economica', 'Civile', 'Signorile', 'Di lusso'
+  ]),
   vtr: control('number', 'VTR', { required: false, min: 0, max: 100_000_000, step: 100 }),
 } satisfies Controls;
 
@@ -68,7 +71,7 @@ export async function action({
   zona_omi,
   destinazione, tipologia,
   dimensione, piani_fuori_terra, piani_entro_terra,
-  anno_costruzione,
+  anno_costruzione, qualita_tipologica,
   vtr,
 }: ActionData<typeof controls>): Promise<void> {
 
@@ -245,6 +248,10 @@ export async function action({
     '#impiantoVideocitofonico': "Assente",
 
   }, 500); // wait 500ms
+
+  // Set qualita tipologica
+  set('#qualitaTipologicaFabbricato', qualita_tipologica);
+  set('#qualitaTipologicaUnitaImmobiliare', qualita_tipologica);
 
   // Before 1920 it's pretty much impossible to see armed concrete in residential buildings
   if (typeof anno_costruzione === 'string') {
