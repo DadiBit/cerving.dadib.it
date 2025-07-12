@@ -228,9 +228,9 @@ export async function action({
 
     /** Impianti **/
     '#impiantoElettrico': "Sottotraccia",
-    'select[dichiarazioneConformitaImpiantoElettrico]': "Non rilevato",
+    'select[name=dichiarazioneConformitaImpiantoElettrico]': "Non rilevato",
     '#impiantoIdricoSanitario': "Presente",
-    'select[dichiarazioneConformitaImpiantoIdricoSanitario]': "Non rilevato",
+    'select[name=dichiarazioneConformitaImpiantoIdricoSanitario]': "Non rilevato",
     'select[name=impiantoRiscaldamento]': "Autonomo",
     '#alimentazioneImpiantoRiscaldamento': "Gas/Metano",
     '#elementiRadianti': "Radiatori in alluminio",
